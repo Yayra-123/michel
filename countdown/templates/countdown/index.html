@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Décompteur vers le 24</title>
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Lato', sans-serif;
+            background: #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .countdown {
+            width: 360px;
+            text-align: center;
+        }
+        .countdown h3 {
+            font-size: 24px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            padding-bottom: 20px;
+        }
+        .countdown h3 span {
+            color: #709386;
+            padding-left: 10px;
+        }
+        .countdown-timer {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            background-color: #333;
+            color: #fff;
+            border-radius: 10px;
+            padding: 10px 0;
+        }
+        .countdown-timer div {
+            width: 30%;
+            text-align: center;
+            font-size: 40px;
+            font-weight: bold;
+            position: relative;
+        }
+        .countdown-timer div::before {
+            content: attr(data-label);
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: #555;
+        }
+        .pop {
+            animation: pop 0.3s forwards;
+        }
+        @keyframes pop {
+            0% { transform: scale(0.6); }
+            30% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="countdown">
+        <!-- Titre avec le nombre de jours restants -->
+        <h3 id="title">PLUS QUE {{ days_left }} JOUR{% if days_left > 1 %}S{% endif %} AVANT LE JOUR J</h3>
+
+        <!-- Le décompteur -->
+        <div class="countdown-timer">
+            <div class="hours" data-label="Heures"><span>--</span></div>
+            <div class="minutes" data-label="Minutes"><span>--</span></div>
+            <div class="seconds" data-label="Secondes"><span>--</span></div>
+        </div>
+    </div>
+
+    <script>
+        function getNext24Date() {
+            let now = new Date();
+            let year = now.getFullYear();
+            let month = now.getMonth();
+            let day = now.getDate();
+
+            // Si aujourd'hui est déjà le 24 ou après, passer au 24 du mois suivant
+            if (day >= 24) {
+                month += 1;
+                if (month > 11) { // Passer à l'année suivante si nécessaire
+                    month = 0;
+                    year += 1;
+                }
+            }
+
+            return new Date(year, month, 24, 0, 0, 0); // 24 à 00:00:00
+        }
+
+        function updateCountdown() {
+            let now = new Date();
+            let targetDate = getNext24Date();
+            let diff = targetDate - now;
+
+            let daysLeft = Math.floor(diff / (1000 * 60 * 60 * 24));
+            let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            let seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            // Mettre à jour le titre
+            let title = document.getElementById("title");
+            title.textContent = `PLUS QUE ${daysLeft} JOUR${daysLeft > 1 ? 'S' : ''} AVANT LE JOUR J`;
+
+            let h = document.querySelector(".hours span");
+            let m = document.querySelector(".minutes span");
+            let s = document.querySelector(".seconds span");
+
+            if (s.textContent !== seconds.toString()) {
+                s.textContent = seconds.toString().padStart(2, '0');
+                s.classList.add("pop");
+                setTimeout(() => s.classList.remove("pop"), 300);
+            }
+
+            if (m.textContent !== minutes.toString()) {
+                m.textContent = minutes.toString().padStart(2, '0');
+                m.classList.add("pop");
+                setTimeout(() => m.classList.remove("pop"), 300);
+            }
+
+            if (h.textContent !== hours.toString()) {
+                h.textContent = hours.toString().padStart(2, '0');
+                h.classList.add("pop");
+                setTimeout(() => h.classList.remove("pop"), 300);
+            }
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown(); 
+    </script>
+</body>
+</html>
