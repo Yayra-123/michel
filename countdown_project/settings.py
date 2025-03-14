@@ -121,6 +121,12 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+
+# Si tu veux servir les fichiers en développement
+STATICFILES_DIRS = [
+    BASE_DIR, 'countdown/static',
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

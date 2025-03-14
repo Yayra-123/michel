@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -11,6 +12,7 @@
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: 'Lato', sans-serif;
             background: #ddd;
@@ -18,66 +20,132 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-        }
-        .countdown {
-            width: 360px;
+            color: blue;
             text-align: center;
         }
-        .countdown h3 {
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        img {
+            width: 300px;
+            max-width: 80%;
+        }
+
+        .animated-title {
             font-size: 24px;
-            letter-spacing: 2px;
             font-weight: bold;
-            padding-bottom: 20px;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 3px solid blue;
+            width: 0;
+            animation: typing 3s steps(45, end) forwards, wave 3s linear infinite;
+            background: linear-gradient(90deg, blue, cyan, blue);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .countdown h3 span {
-            color: #709386;
-            padding-left: 10px;
+
+        .date {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
         }
-        .countdown-timer {
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 35ch; }
+        }
+
+        @keyframes wave {
+            0% { background-position: 0%; }
+            100% { background-position: 100%; }
+        }
+
+        .countdown {
             width: 100%;
+            max-width: 400px;
+        }
+
+        .countdown-timer {
             display: flex;
             justify-content: space-between;
-            background-color: #333;
+            
             color: #fff;
             border-radius: 10px;
             padding: 10px 0;
+            margin-top: 20px;
+            flex-wrap: wrap;
         }
+
         .countdown-timer div {
-            width: 30%;
+            width: 23%;
             text-align: center;
             font-size: 40px;
             font-weight: bold;
             position: relative;
+            padding: 15px 0;
+            background: black;
+            border-radius: 5px;
         }
+
         .countdown-timer div::before {
             content: attr(data-label);
             position: absolute;
-            top: -24px;
+            top: -30px;
             left: 50%;
             transform: translateX(-50%);
             font-size: 14px;
             color: #555;
         }
-        .pop {
-            animation: pop 0.3s forwards;
-        }
-        @keyframes pop {
-            0% { transform: scale(0.6); }
-            30% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+
+        @media screen and (max-width: 480px) {
+            .container {
+                width: 100%;
+                max-width: 90%;
+                text-align: center;
+            }
+
+            img {
+                width: 200px;
+                max-width: 70%;
+            }
+
+            .animated-title {
+                font-size: 20px;
+            }
+
+            .countdown-timer {
+                flex-direction: row;
+                justify-content: center;
+                gap: 10px;
+                padding: 20px 0;
+            }
+
+            .countdown-timer div {
+                font-size: 30px;
+                width: 45%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="countdown">
-        <!-- Titre avec le nombre de jours restants -->
-        <h3 id="title">PLUS QUE {{ days_left }} JOUR{% if days_left > 1 %}S{% endif %} AVANT LE JOUR J</h3>
 
-        <!-- Le décompteur -->
-        <div class="countdown-timer">
-            <div class="hours" data-label="Heures"><span>--</span></div>
-            <div class="minutes" data-label="Minutes"><span>--</span></div>
-            <div class="seconds" data-label="Secondes"><span>--</span></div>
+    <div class="container">
+         <img src="{% static 'countdown/img/LOGO ROND.png' %}" alt="Logo" width="300" style="padding-bottom: 10%;"> 
+                <h3 id="title" class="animated-title">PLUS QUE -- JOURS AVANT LE JOUR J</h3>
+        <!-- <p class="date animated-title" id="date-display">Date : --</p> -->
+        <div class="countdown">
+            <div class="countdown-timer">
+                <div class="days" data-label="Jours"><span>--</span></div>
+                <div class="hours" data-label="Heures"><span>--</span></div>
+                <div class="minutes" data-label="Minutes"><span>--</span></div>
+                <div class="seconds" data-label="Secondes"><span>--</span></div>
+            </div>
         </div>
     </div>
 
@@ -88,16 +156,14 @@
             let month = now.getMonth();
             let day = now.getDate();
 
-            // Si aujourd'hui est déjà le 24 ou après, passer au 24 du mois suivant
             if (day >= 24) {
                 month += 1;
-                if (month > 11) { // Passer à l'année suivante si nécessaire
+                if (month > 11) {
                     month = 0;
                     year += 1;
                 }
             }
-
-            return new Date(year, month, 24, 0, 0, 0); // 24 à 00:00:00
+            return new Date(year, month, 24, 0, 0, 0);
         }
 
         function updateCountdown() {
@@ -110,35 +176,26 @@
             let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             let seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            // Mettre à jour le titre
-            let title = document.getElementById("title");
-            title.textContent = `PLUS QUE ${daysLeft} JOUR${daysLeft > 1 ? 'S' : ''} AVANT LE JOUR J`;
+            document.getElementById("title").textContent = `PLUS QUE ${daysLeft} JOUR${daysLeft > 1 ? 'S' : ''} AVANT LE JOUR J`;
 
+            let d = document.querySelector(".days span");
             let h = document.querySelector(".hours span");
             let m = document.querySelector(".minutes span");
             let s = document.querySelector(".seconds span");
 
-            if (s.textContent !== seconds.toString()) {
-                s.textContent = seconds.toString().padStart(2, '0');
-                s.classList.add("pop");
-                setTimeout(() => s.classList.remove("pop"), 300);
-            }
+            d.textContent = daysLeft.toString().padStart(2, '0');
+            h.textContent = hours.toString().padStart(2, '0');
+            m.textContent = minutes.toString().padStart(2, '0');
+            s.textContent = seconds.toString().padStart(2, '0');
 
-            if (m.textContent !== minutes.toString()) {
-                m.textContent = minutes.toString().padStart(2, '0');
-                m.classList.add("pop");
-                setTimeout(() => m.classList.remove("pop"), 300);
-            }
-
-            if (h.textContent !== hours.toString()) {
-                h.textContent = hours.toString().padStart(2, '0');
-                h.classList.add("pop");
-                setTimeout(() => h.classList.remove("pop"), 300);
-            }
+            // Affichage de la date exacte
+            let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById("date-display").textContent = `Date : ${targetDate.toLocaleDateString('fr-FR', options)}`;
         }
 
         setInterval(updateCountdown, 1000);
-        updateCountdown(); 
+        updateCountdown();
     </script>
+
 </body>
 </html>
